@@ -1,0 +1,13 @@
+##The options for Fallout 4's mod manager.
+OPTIONS="lc::iIu:R"
+LONGOPTIONS="list,check::,install:,Launch,uninstall:,Remove"
+
+# Parse options
+PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTIONS --name "modli" -- "$@")
+if [[ $? -ne 0 ]]; then
+    echo "Failed to parse options"
+    return 1
+fi
+
+# Rearrange the options
+eval set -- "$PARSED"
