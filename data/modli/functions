@@ -1,0 +1,89 @@
+#!/bin/bash
+
+##Lists all the mods in $GAMEPATH/Mods
+listmods(){
+	for file in "$MODPATH"/*; do
+		echo $(basename "$file")
+	done
+}
+
+##Checks if the passed mod is installed to stage file
+check() {
+	#if no mod is passed
+	if [ -z $MOD ]; then
+		echo Mods installed:
+		for file in "$GAMEPATH/mods.stage"/*; do
+                        echo $(basename "$file")    
+                done
+	#if the mod is already installed
+	elif [ -d "$GAMEPATH/mods.stage/$mod" ]; then
+                echo $MOD is installed to the stage folder
+                #exit 0
+                return 0
+	#if the mod is not installed
+        elif [ -f "$MODPATH/$MOD" ]; then
+                echo "$MOD is not installed to the stage folder"
+        else
+                listmods
+                return 1
+        fi
+}
+
+##Installs mod to stage folder
+installmod(){
+        if [ ! -f "$MODPATH/$MOD" ]; then
+                listmods
+        elif [ ! -d "$GAMEPATH/mods.stage/$mod" ]; then
+                7z x "$MODPATH/$MOD" -o"$GAMEPATH/mods.stage" -y &> /dev/null
+                if [[ $? -eq 0 ]]; then
+                        echo "$MOD was successfully installed"
+                fi
+        else
+                echo "$MOD is already installed"
+        fi
+}
+
+##Removes the specified mod from the Data folder then the stage file
+##WARNING: MAY NEED TO TRACK WHICH MODS ARE UNINSTALLED BEFORE UNLAUNCHED
+uninstallmods(){
+        if [ -d "$GAMEPATH/mods.stage/$mod" ]; then
+                cd "$GAMEPATH/mods.stage/$mod"
+                find Data -type f -exec rm -fr "$GAMEPATH/{}" \;
+                rm -dR "$GAMEPATH/mods.stage/$mod"
+                cd - &> /dev/null
+                echo "$MOD was successfully removed. Empty directories may remain."
+                return 0
+        elif [ ! -f "$MODPATH/$MOD" ]; then
+                listmods
+        else
+                echo "ERR in deleting $MOD"
+                return 1
+        fi
+}
+
+##Launches the stage folder. MAKE SURE NO OVERRIDING OCCURS
+launch(){
+        for file in "$GAMEPATH/mods.stage"/*; do
+                cp -r "$file"/* "$GAMEPATH"/
+                if [[ $? -ne 0 ]]; then
+                        echo "ERR in launching stage folder"
+                        return 1
+                fi
+        done
+        echo "Stage file was successfully launched"
+}
+
+##removes all files from $GAMEPATH/data that are in $GAMEPATH/mods.stage/*
+##WARNING: MAY REMOVE IMPORTANT FILES. KEEP AN EYE ON THIS DURING TESTING
+removestage(){
+        owd=$(pwd)
+        for mod in "$GAMEPATH/mods.stage"/*; do
+                cd "$mod"
+                find Data -type f -exec rm -fr "$GAMEPATH/{}" \;
+        done
+        cd "$owd"
+        echo "Stage file was removed. Empty directories may exist"
+        return 0
+}
+
+
