@@ -1,7 +1,0 @@
-BaldursGate3=1086940
-Cyberpunk=1091500
-Fallout=38400
-Fallout76=1151340
-Fallout3=22370
-Fallout4=377160
-FalloutNV=22380
