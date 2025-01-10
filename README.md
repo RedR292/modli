@@ -1,4 +1,4 @@
-# modli
+# scriotp[tker
 A mod manager command line interface, ModLI, aims to be a simple and autonomous mod manager that's also easy to understand for anyone, even naive users.
 *DISCLAIMER*
 Do not use this code in a malicious way.
