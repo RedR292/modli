@@ -4,24 +4,17 @@ A mod manager command line interface, ModLI, aims to be a simple and autonomous 
 Do not use this code in a malicious way.
 
 ## Requirements
-- Built on Ubuntu 24.04 LTS
-- Mods must be saved in 7z archives and kept as simple as possible. E.x: Fallout 4 mods (almost) all have a single Data folder
-- Script extenders are to be configured at a game level. That is, with every chosen game.
-- Mods and stage files are stored in the game directory at $GAMEPATH/Mods and $GAMEPATH/mods.stage respectively
+- Currently only compatible with Linux (built on Ubuntu 24.04 LTS)
+- A basic understanding of game modding is recommended.
 
-## Definitions
-- GAMEPATH: Where the game is stored
-- GAME: App id of selected game.
-- FILE|MOD: Optional mod that can be passed
-- ENGINE: The actual mod manager that can be specified for each game or system.
-- MODPATH: $GAMEPATH/Mods
+## Acknowledgement
+All third party mods are created by their respective authors and are not affiliated with modli.
 
-## Usage
-modli [OPTIONS][GAME][FILE]
-Options:
-- -l -- List all the mods stored in $MODPATH
-- -c MOD -- checks if $mod is installed to $GAMEPATH/mods.stage. If no $MOD is specified, then list all installed mods
-- -i MOD -- installs $mod to $GAMEPATH/mods.stage
-- -u MOD -- removes mod files from game and removes $mod from $GAMEPATH/mods.stage
-- -I -- 'launches' the stage file which copies over all the files according to the engine.
-- -R -- Removes the stage file from the game according to the engine
+## Abstract
+Most (graphical) mod managers tend to abstract and hide the technical process of installing open-source content, which is convenient but is not developer-friendly. That is, it is not obvious what the MM is doing to actually install the mod. Also, MMs introduce the overhead of their own systems, which makes the game system more elaborate and externally reliant. Modli's goals are to make game modification transparent and simplistic without sacrificing simplicity. It is a barebones mod manager that improves usability for non-developer or naive users. 
+
+### Implementation
+Modli keeps each managed game's mods and report in $root/Games/$GAME/Mods and $root/Games/$GAME/statfile. A stage file is added to each managed game, so mods can be added and removed to the stage file before being launched into the game itself. At the most basic level, modli similarly handles mods to the standard for modifying Bethesda games, such as TES or the Fallout series: the contents of each mod are stored in a root "Data" folder and a load order is provided (modli load order under development). I chose to base my schema on Bethesda games because of their simplistic nature and the relatively easy process of modding them; each game's specific mod manager can perform additional operations based on the needs of each game.
+
+### Script Extenders
+Some games require a special mod called a Script Extender to be able to run almost any mod, and will not allow any mods to be added to it's stage file before the script extender is set. Script Extenders can only be set once and can only be removed by removing the stage through modli. The user must provide the Script Extender at script installation time as modli does not store script extenders.
