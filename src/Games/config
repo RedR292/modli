@@ -1,0 +1,53 @@
+##Configures Fallout 4 for first time use
+
+#1. Create a stage file
+#2. Create Mods directory in modli
+
+managed=false
+if [[ -d $root/Games/"$GAME_NAME" && ! -z "$GAME_NAME" ]]; then
+	managed=true
+fi
+
+if  [[ $managed = false ]]; then
+	foo="Game is not managed. Would you like to manage it? Confirm with (Y)es or (N)o"
+else
+	foo="$GAME_NAME is managed. Would you like to remove it from mamnagement? Confirm with (Y)es or (N)o"
+fi
+
+echo $foo
+read confirm
+while [[  $confirm != "y" && $confirm != "Y" ]]; do
+	echo "Input not recognized. Please enter (Y)es or (N)o"
+	read confirm
+	if [[ $confirm == "n" || $confirm == "N" ]]; then
+        	echo "modli: Management aborted"
+        	return 0
+	fi
+done
+
+if [[ $managed = false ]]; then
+	## Create the games config and stage file
+	GAME_NAME="Fallout 4"
+        GAMEPATH="$GAMES/Fallout 4"
+        MODPATH="$root/Games/$GAME_NAME/Mods"
+        SCRIPTEXTENDER="none"
+        ENGINE="$root/ModManagers/Fallout4.mm"
+	
+	mkdir "$GAMEPATH/mods.stage"
+        echo "modli: stage file $GAMEPATH/mods.stage was created"
+        mkdir -p $root/Games/"$GAME_NAME"/Mods
+	touch "$root/Games/$GAME_NAME/config"
+        echo "modli: $root/Games/$GAME_NAME/Mods directory was created"
+	echo GAME_NAME=\""$GAME_NAME\""\
+GAMEPATH=\""$GAMEPATH\""\
+MODPATH=\""$MODPATH\""\ 
+SCRIPTEXTENDER=\""$SCRIPTEXTENDER\""\
+ENGINE=\""$ENGINE\"" > "$root/Games/$GAME_NAME"/config
+	return 0	
+
+else
+	##Removing game from management
+	rm -dR $root/Games/"$GAME_NAME"
+	##figure out how to unlaunch game mods before removing stage file
+	echo "modli: $root/Games/$GAME_NAME was removed from management. Mods are still deployed."
+fi

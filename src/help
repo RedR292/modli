@@ -1,0 +1,41 @@
+helptext=\
+"MOD manager command Line Interface, modli, handles mods for games in a simple and autonomous way that is developer friendly.
+
+Usage:
+modli OPTION [[GAME] [FILE]]
+OPTIONS
+=======================================================================================================================================================================
+-> -l [GAME]: Lists all of the games that are managed or all the mods of a specific game.
+-> -c GAME [FILE]: Prints GAME details if FILE is not passed or checks if FILE is installed to GAME.
+-> -i GAME FILE: Installs FILE to GAMEs stage file. DOES NOT LAUNCH MODS. If FILE is not recognized, a list of GAMEs mods is printed
+-> -u GAME FILE: Removes FILE from GAME and GAMEs stage file. 
+-> -h [GAME]: Prints a brief mod formatting guide for GAME. If GAME is not passed then this statement is printed.
+-> --Installscript GAME [FILE]: installs and launches FILE as GAMEs script extender if GAME requires a script extender. 
+-> --Launch GAME: Installs the contents of GAMEs stage file to the GAME. This is the executive function
+-> --Remove GAME: Removes the contents of the GAMEs stage file from the GAME. SHOULD BE THE INVERSE OF -I TO MAINTAIN DATA CONSISTENCY
+-> --Manage GAME: Adds or removes GAME from mod management. 
+-> --Install FILE: Creates a new mod using FILE. Improperly formatted mods are still created but require reformatting. 
+-> --Uninstall FILE: Removes a mod from GAME's modli directory. I haven't finished this yet but keep calling it and see if it works
+
+GAME
+=======================================================================================================================================================================
+Each GAME that is added to management contains a 'mods.stage' folder and has a directory in $root/Games, where the mods and script extenders are stored.
+
+FILE
+======================================================================================================================================================================
+FILE can be either a MOD or a SCRIPT. a MOD is any 7z file that contains a mod for GAME while a SCRIPT is any 7z that contains a script extender for GAME. FILEs must
+have a file structure consistent with each GAME. For example, Fallout 4 MODs all contain a Data folder at the root and nothing else at the root.
+
+SCRIPT EXTENDER
+======================================================================================================================================================================
+Some GAMEs require a Script Extender for the majority of open-source mods and require that a script extender be set before any mods can be installed."
+
+fallout4text="Fallout 4 mods must be a 7z file and contain a root folder named "Data" containing all of the files and subdirectories. If the mod is not consistent with
+this scheme, it will not be installed. It is STRONGLY ADVISED that the readme of unformatted mods be read to understand how to format the mod yourself. 
+"
+
+if [[ -z $GAME_ID ]]; then
+	echo "$helptext"
+elif [[ $GAME_ID = $Fallout4 ]]; then
+	echo "$fallout4text"
+fi
