@@ -1,0 +1,37 @@
+\helptext=\
+"MOD manager for LInux, modli, handles mods for games in a simple and autonomous way that is developer friendly.
+
+Usage:
+modli OPTION [[GAME] [FILE]]
+OPTIONS
+=======================================================================================================================================================================
+-> -i GAME: Installs a mod or script to GAME
+-> -u GAME: removes a MOD from GAME 
+-> -h [GAME]: Prints a brief mod formatting guide for GAME. If GAME is not passed then this help statement is printed.
+-> --Launch GAME: Installs the contents of GAMEs stage file to the GAME. This is the executive function.
+-> --Manage GAME: Adds GAME to mod management. 
+-> --Unmanage GAME: Removes GAME from mod management.
+-> --Install FILE: Installs a MOD to modli 
+-> --Uninstall FILE: Removes a mod from GAME's modli directory.	
+
+GAME
+=======================================================================================================================================================================
+Each GAME that is added to management contains a 'mods.stage' folder and has a directory in $root/Games, where the mods and scripts are stored.
+
+FILE
+======================================================================================================================================================================
+FILE is a MOD that can be any 7z file that contains a mod for GAME. FILEs must have a file structure consistent with each GAME. For example, Fallout 4 MODs
+all contain a Data folder at the root with no siblings.
+
+Custom Scripts Directory
+======================================================================================================================================================================
+Users required and encouraged to make their own custom scripts for automatic installation of mods. Users are encouraged to create simple scripts that just
+trim and reorganise mods, but are free to process mods however they prefer; an example script is written for Fallout 4's Script Extender."
+
+fallout4text="Fallout 4 mods must have a single root folder named Data that contains the rest of the mod."
+
+if [[ -z $GAME_ID ]]; then
+	echo "$helptext"
+elif [[ $GAME_ID = $Fallout4 ]]; then
+	echo "$fallout4text"
+fi

@@ -1,0 +1,47 @@
+##Adding a game to management
+if [[ $managed = false ]]; then
+	echo "Choose a game from the following list to manage."
+	cat $root/compatible-games
+	read GAME_NAME
+	if ! grep -Fx "$GAME_NAME" $root/compatible-games &>/dev/null; then
+		echo "modli: $GAME_NAME not found."
+		return 1
+	fi
+
+	if grep -Fx "$GAME_NAME" $root/managed-games &>/dev/null; then
+		echo "modli: $GAME_NAME was already added to management. Aborting management."
+		return 
+	fi
+	echo "modli: Adding $GAME_NAME to management"
+	mkdir -p "$root/Games/$GAME_NAME/Mods" "$root/Games/$GAME_NAME/Scripts/data"
+	echo "Enter the name of the game's root file. This is found in $GAMES"
+	read gamepath
+	if [ ! -d "$GAMES/$gamepath" ]; then
+		echo "modli: ERR: $gamepath not found"
+		return 1
+	fi
+	echo \
+"GAME_NAME=\"$GAME_NAME\"
+GAMEPATH=\"$GAMES/$gamepath\"" > "$root/Games/$GAME_NAME/config"
+	echo "$GAME_NAME" >> $root/managed-games
+	mkdir "$GAMES/$gamepath/mods.stage"
+	echo "modli: $GAME_NAME was added to management"
+	echo "modli: mods.stage added to $GAME_NAME"
+
+##Removing a game from management
+else
+	echo "Choose a game from the following list to remove."
+        cat $root/managed-games
+        read GAME_NAME
+        if ! grep -Fx "$GAME_NAME" $root/managed-games &>/dev/null; then
+                echo "modli: $GAME_NAME not found."
+                return 1
+        fi
+	echo "modli: removing $GAME_NAME from management"
+	##get the GAMEPATH var
+	. "$root/Games/$GAME_NAME/config"
+	rm -dR "$root/Games/$GAME_NAME"
+	sed -i "/^$GAME_NAME/d" $root/managed-games
+	rm -dR "$GAMEPATH/mods.stage"
+	echo "modli: $GAME_NAME was successfully removed from management"
+fi

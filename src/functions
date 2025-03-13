@@ -1,0 +1,111 @@
+##Installs a mod to the modli system
+Installmod(){
+	##User input to rename mod
+	echo "modli: Installing $(basename "$MOD") to modli."
+	echo "Rename the file and press enter. Raw mods must end in .7z and install scripts must end in .sh. Leave this blank if you don't want to change the name."
+	read mod
+	if [[ -z "$mod" ]]; then
+		mod="$(basename $MOD)"
+	fi
+
+	if [[ "$mod" == *.7z ]]; then
+		##installing a mod
+		if [[ -f "$root/Games/$GAME_NAME/Mods/$mod" ]]; then
+			echo "modli: $mod was already installed. Aborting install"
+			return 0
+		fi
+		validatemod
+		if [[ $? -ne 0 ]]; then
+			echo "modli: ERR: $mod is not properly formatted."
+                        return 1	
+		fi
+		##copies mod to modli data
+		cp "$MOD" "$root/Games/$GAME_NAME/Mods/$mod"
+	elif [[ "$mod" == *.sh ]]; then
+		##installing a script (and the data to go with)
+		cp "$MOD" "$root/Games/$GAME_NAME/Scripts/$mod"
+		echo "Enter the path of the data to go with the script. If no data is needed, press enter now."
+		echo "WARNING: scripts are not validated by modli. Best practices are recommended when writing your own scripts"
+		echo "Proceeding means the user understands the risks of a poorly written script, such as corruption and missing and/or unchecked data."
+		read data
+		if [[ ! -z "$data" ]]; then
+			cp "$data" "$root/Games/$GAME_NAME/Scripts/data/"
+		fi
+	else
+		echo "modli: ERR: File extension must end in .7z or .sh. Aborting installation"
+		return 1
+	fi
+	return 0
+}
+
+##Removes a mod from modli
+##Could break a lot of stuff if not done right.
+##TODO: Remove mods from games. Detect if the stage file is launched?
+Uninstallmod(){
+	for file in $(ls -p "$root/Games/$GAME_NAME/Mods" | grep -v /); do
+		echo $file
+	done
+	echo "Enter the name of the mod you would like to remove"
+	read mod
+	if [[ ! -f "$root/Games/$GAME_NAME/Mods/$mod" ]]; then
+		echo "modli: ERR: $mod not found"
+		return 1
+	fi
+	rm "$root/Games/$GAME_NAME/Mods/$mod"
+	return 0
+}
+
+
+##executes a custom install script
+Installscript(){
+	. "$root/Games/$GAME_NAME/Scripts/$MOD"
+	if [[ $? -ne 0 ]]; then
+		echo "modli: ERR: $MOD was not executed properly"
+		return 1
+	fi
+	return 0
+}
+
+##Installs MOD to GAME
+install(){
+	for file in $(ls -p "$root/Games/$GAME_NAME/Mods" | grep -v /); do
+		echo $file
+	done
+	echo "Enter the name of the mod you would like to install to $GAME"
+	read mod
+	if [[ ! -f "$root/Games/$GAME_NAME/Mods/$mod" ]]; then
+		echo "modli: ERR: $mod not found"
+		return 1
+	fi
+	ln -s "$root/Games/$GAME_NAME/Mods/$mod" "$GAMEPATH/mods.stage/$mod"
+	return 0
+}
+
+##Removes a mod from GAME
+remove(){
+	echo "Enter the name of the mod you want to remove from the list"
+	for mod in "$GAMEPATH/mods.stage"/*; do
+		echo $(basename "$mod")
+	done
+	read mod
+	if [ ! -f "$GAMEPATH/mods.stage/$mod" ]; then
+		echo "modli: ERR: $mod was not found"
+		return 1
+	fi
+	rm "$GAMEPATH/mods.stage/$mod"
+	return 0
+}
+
+##launches stage file to GAME
+Launch(){
+	echo "Launching mods to $GAME_NAME"
+	mkdir "$GAMEPATH/tmp"
+	for file in "$GAMEPATH"/mods.stage/*; do
+		#echo "$file"
+		7z x "$file" -o"$GAMEPATH/tmp"
+		cp -r "$GAMEPATH/tmp/Data" "$GAMEPATH/"
+		rm -dR "$GAMEPATH/tmp/Data"
+	done
+	rm -dR "$GAMEPATH/tmp"
+	return 0
+}

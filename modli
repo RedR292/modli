@@ -1,0 +1,58 @@
+#!/bin/bash
+## Prototype of modli cli and mod manager.
+## Written by John "Red" Richardson
+## 13/03/2025
+#########REQUIREMENTS############
+#-(Un)Install to stage files    #
+#-Set and launch stage file     #
+#-Different install engines     #
+#################################
+##modli [OPTIONS] [GAME] [FILE]	
+
+#Set this to where you keep your games, such as your steam library.
+GAMES=/mnt/games/Steam/steamapps/common
+#Set this to where the modli data will be stored, such as mods
+root=~/bin/data/modli
+
+#get the passed vars
+if [[ ! -z "$2" ]]; then
+	GAME_NAME="$2"
+fi
+
+if [[ ! -z "$3" ]]; then
+	MOD="$3"
+fi
+
+if [[ $1 = "--Manage" ]]; then
+	managed=false
+        . $root/Games/config 
+	exit
+
+elif [[ $1 = "--Unmanage" ]]; then
+	managed=true
+	. $root/Games/config
+	exit
+fi
+
+case "$GAME_NAME" in
+	"Fallout 4")
+		ENGINE="Fallout4.mm"
+		shift 2
+		;;
+	"Fallout 3")
+		ENGINE="Fallout3.mm"
+		shift 2
+		;;
+	"Fallout New Vegas"
+		ENGINE="FalloutNV.mm"
+		shift 2
+		;;
+esac
+
+. "$root/Games/$GAME_NAME/config"
+
+#Call the mod manager
+. $root/ModManagers/$ENGINE
+
+
+
