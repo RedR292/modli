@@ -12,7 +12,7 @@
 #Set this to where you keep your games, such as your steam library.
 GAMES=/mnt/games/Steam/steamapps/common
 #Set this to where the modli data will be stored, such as mods
-root=~/bin/data/modli
+root=~/git/modli/src
 
 #get the passed vars
 if [[ ! -z "$2" ]]; then
@@ -43,7 +43,7 @@ case "$GAME_NAME" in
 		ENGINE="Fallout3.mm"
 		shift 2
 		;;
-	"Fallout New Vegas"
+	"Fallout New Vegas")
 		ENGINE="FalloutNV.mm"
 		shift 2
 		;;

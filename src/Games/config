@@ -1,16 +1,20 @@
 ##Adding a game to management
 if [[ $managed = false ]]; then
-	echo "Choose a game from the following list to manage."
-	cat $root/compatible-games
-	read GAME_NAME
+	## GAME_NAME was passed
+	if [[ -z "$GAME_NAME" ]]; then
+		echo "Choose a game from the following list to manage."
+		grep -Fxv -f "$root/managed-games" "$root/compatible-games"
+		read GAME_NAME
+	fi
 	if ! grep -Fx "$GAME_NAME" $root/compatible-games &>/dev/null; then
 		echo "modli: $GAME_NAME not found."
 		return 1
 	fi
 
+
 	if grep -Fx "$GAME_NAME" $root/managed-games &>/dev/null; then
 		echo "modli: $GAME_NAME was already added to management. Aborting management."
-		return 
+		return 0
 	fi
 	echo "modli: Adding $GAME_NAME to management"
 	mkdir -p "$root/Games/$GAME_NAME/Mods" "$root/Games/$GAME_NAME/Scripts/data"
@@ -30,9 +34,11 @@ GAMEPATH=\"$GAMES/$gamepath\"" > "$root/Games/$GAME_NAME/config"
 
 ##Removing a game from management
 else
-	echo "Choose a game from the following list to remove."
-        cat $root/managed-games
-        read GAME_NAME
+	if [[ -z "$GAME_NAME" ]]; then
+		echo "Choose a game from the following list to remove."
+        	cat $root/managed-games
+        	read GAME_NAME
+	fi
         if ! grep -Fx "$GAME_NAME" $root/managed-games &>/dev/null; then
                 echo "modli: $GAME_NAME not found."
                 return 1
