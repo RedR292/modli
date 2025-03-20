@@ -1,4 +1,4 @@
-. ~/bin/data/modli/functions
+. "$root/functions"
 
 validatemod(){
 	modcontents=$(7z l "$MOD" | grep -A 1000 "^----" | grep -B 1000 "^----" | grep -v "^----" | egrep "^([^/]*/?){1}$" | awk '{print $6}')
@@ -13,7 +13,7 @@ validatemod(){
 }
 
 #process the options
-case "$1" in 
+case $cmd in 
 	--Installmod)
 		Installmod
 		if [[ $? -ne 0 ]]; then
@@ -39,6 +39,7 @@ case "$1" in
 		if [[ $? -ne 0 ]]; then
 			echo "modli: ERR: mod not installed properly"
 		fi
+
 		shift 2
 		;;
 	-i)

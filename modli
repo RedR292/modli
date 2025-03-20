@@ -15,6 +15,7 @@ GAMES=/mnt/games/Steam/steamapps/common
 root=~/git/modli/src
 
 #get the passed vars
+cmd=$1
 if [[ ! -z "$2" ]]; then
 	GAME_NAME="$2"
 fi
@@ -23,12 +24,12 @@ if [[ ! -z "$3" ]]; then
 	MOD="$3"
 fi
 
-if [[ $1 = "--Manage" ]]; then
+if [[ $cmd = "--Manage" ]]; then
 	managed=false
         . $root/Games/config 
 	exit
 
-elif [[ $1 = "--Unmanage" ]]; then
+elif [[ $cmd = "--Unmanage" ]]; then
 	managed=true
 	. $root/Games/config
 	exit
@@ -50,7 +51,6 @@ case "$GAME_NAME" in
 esac
 
 . "$root/Games/$GAME_NAME/config"
-
 #Call the mod manager
 . $root/ModManagers/$ENGINE
 
