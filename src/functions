@@ -1,11 +1,18 @@
 ##Installs a mod to the modli system
 Installmod(){
+	if [[ -z "$MOD" ]]; then
+		echo "modli: ERR: MOD was not passed. Installation aborted."
+		return 1
+	fi
 	##User input to rename mod
+	ls "$DOWNLOADS/$GAME_NAME"/
 	echo "modli: Installing $(basename "$MOD") to modli."
-	echo "Rename the file and press enter. Raw mods must end in .7z and install scripts must end in .sh. Leave this blank if you don't want to change the name."
+	echo "Rename the file and press enter. Raw mods must end in .7z and install scripts must end in .sh.\
+	Leave this blank if you don't want to change the name."
 	read mod
+	##if user didn't rename the mod
 	if [[ -z "$mod" ]]; then
-		mod="$(basename $MOD)"
+		mod="$(basename "$MOD")"
 	fi
 
 	if [[ "$mod" == *.7z ]]; then
@@ -14,22 +21,24 @@ Installmod(){
 			echo "modli: $mod was already installed. Aborting install"
 			return 0
 		fi
+		##TODO: MAKE VALIDATE WORK. Build a checker for archive contents?
 		validatemod
 		if [[ $? -ne 0 ]]; then
 			echo "modli: ERR: $mod is not properly formatted."
                         return 1	
 		fi
-		##copies mod to modli data
-		cp "$MOD" "$root/Games/$GAME_NAME/Mods/$mod"
+		##Moves MOD from DOWNLOADS to modli
+		mv "$DOWNLOADS/$GAME_NAME/$MOD" "$root/Games/$GAME_NAME/Mods/$mod"
+	
 	elif [[ "$mod" == *.sh ]]; then
 		##installing a script (and the data to go with)
-		cp "$MOD" "$root/Games/$GAME_NAME/Scripts/$mod"
+		mv "$MOD" "$root/Games/$GAME_NAME/Scripts/"
 		echo "Enter the path of the data to go with the script. If no data is needed, press enter now."
 		echo "WARNING: scripts are not validated by modli. Best practices are recommended when writing your own scripts"
 		echo "Proceeding means the user understands the risks of a poorly written script, such as corruption and missing and/or unchecked data."
-		read data
-		if [[ ! -z "$data" ]]; then
-			cp "$data" "$root/Games/$GAME_NAME/Scripts/data/"
+		read datapath
+		if [[ ! -z "$datapath" ]]; then
+			cp "$datapath" "$root/Games/$GAME_NAME/Scripts/data/"
 		fi
 	else
 		echo "modli: ERR: File extension must end in .7z or .sh. Aborting installation"
@@ -55,7 +64,6 @@ Uninstallmod(){
 	return 0
 }
 
-
 ##executes a custom install script
 Installscript(){
 	. "$root/Games/$GAME_NAME/Scripts/$MOD"
@@ -66,46 +74,74 @@ Installscript(){
 	return 0
 }
 
-##Installs MOD to GAME
+##Adds $MOD to $GAME_NAME stage folder
 install(){
-	for file in $(ls -p "$root/Games/$GAME_NAME/Mods" | grep -v /); do
-		echo $file
-	done
+	ls "$root/Games/$GAME_NAME/Mods"
 	echo "Enter the name of the mod you would like to install to $GAME"
 	read mod
+
+	##If mod was not found
 	if [[ ! -f "$root/Games/$GAME_NAME/Mods/$mod" ]]; then
 		echo "modli: ERR: $mod not found"
 		return 1
 	fi
-	ln -s "$root/Games/$GAME_NAME/Mods/$mod" "$GAMEPATH/mods.stage/$mod"
+	
+	##If mod already exists in stage
+	if [[ -L "$root/Games/$GAME_NAME/stage/$mod" ]]; then
+		echo "modli: ERR: $mod is already in $GAME_NAME's stage"
+		return 1
+	fi
+ 
+	ln -s "$root/Games/$GAME_NAME/Mods/$mod" "$root/Games/$GAME_NAME/stage/$mod"
 	return 0
 }
 
 ##Removes a mod from GAME
 remove(){
 	echo "Enter the name of the mod you want to remove from the list"
-	for mod in "$GAMEPATH/mods.stage"/*; do
+	for mod in "$root/Games/$GAME_NAME/Mods/"*; do
 		echo $(basename "$mod")
 	done
 	read mod
-	if [ ! -f "$GAMEPATH/mods.stage/$mod" ]; then
+	if [ ! -f "$root/Games/$GAME_NAME/stage/$mod" ]; then
 		echo "modli: ERR: $mod was not found"
 		return 1
 	fi
-	rm "$GAMEPATH/mods.stage/$mod"
+	rm "$root/Games/$GAME_NAME/stage/$mod"
 	return 0
 }
 
 ##launches stage file to GAME
 Launch(){
 	echo "Launching mods to $GAME_NAME"
-	mkdir "$GAMEPATH/tmp"
-	for file in "$GAMEPATH"/mods.stage/*; do
-		#echo "$file"
-		7z x "$file" -o"$GAMEPATH/tmp"
-		cp -r "$GAMEPATH/tmp/Data" "$GAMEPATH/"
-		rm -dR "$GAMEPATH/tmp/Data"
-	done
-	rm -dR "$GAMEPATH/tmp"
+	7z x "$root/Games/$GAME_NAME/stage/*" -o"$GAMEPATH/"
+	#mkdir "$root/tmp"
+	#for file in "$root/Games/$GAME_NAME/stage"/*; do
+		
+	#	7z x "$file" -o"$root/tmp/"
+	#	cp -r "$root/tmp/Data" "$GAMEPATH/"
+		#rm -dR "$GAMEPATH/tmp/Data"
+	#done
+	#rm -dR "$root/tmp"
 	return 0
+}
+
+##Checks all available mods for GAME
+checkAvailableMods(){
+	echo "Mods available to be installed to $GAME_NAME:"
+	for f in "$root/Games/$GAME_NAME/Mods"/*; do
+		f="$(basename "$f")"
+		if [[ ! -e "$root/Games/$GAME_NAME/stage/$f" ]]; then 
+			echo $f
+		fi
+	done
+}
+
+##Checks all currently installed mods for GAME
+checkInstalledMods(){
+	echo "Mods currently installed to $GAME_NAME:"
+	for f in "$root/Games/$GAME_NAME/stage"/*; do
+		echo $(basename "$f")
+
+	done
 }

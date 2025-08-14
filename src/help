@@ -8,6 +8,11 @@ OPTIONS
 -> -i GAME: Installs a mod or script to GAME
 -> -u GAME: removes a MOD from GAME 
 -> -h [GAME]: Prints a brief mod formatting guide for GAME. If GAME is not passed then this help statement is printed.
+-> -C: Checks which games are already being managed
+-> -c: Checks which games can be managed
+-> -m GAME: Checks which mods are available to GAME
+-> -M GAME: Checks which mods are installed to GAME
+
 -> --Launch GAME: Installs the contents of GAMEs stage file to the GAME. This is the executive function.
 -> --Manage GAME: Adds GAME to mod management. 
 -> --Unmanage GAME: Removes GAME from mod management.

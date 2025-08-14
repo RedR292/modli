@@ -2,57 +2,64 @@
 ## Prototype of modli cli and mod manager.
 ## Written by John "Red" Richardson
 ## 13/03/2025
-#########REQUIREMENTS############
-#-(Un)Install to stage files    #
-#-Set and launch stage file     #
-#-Different install engines     #
-#################################
+##################USAGE##################
 ##modli [OPTIONS] [GAME] [FILE]	
 
+##TODO:
+#FIX
+#THE #!@#ING
+#IF STATEMENTS
+
 #Set this to where you keep your games, such as your steam library.
-GAMES=/mnt/games/Steam/steamapps/common
+GAMES=~/Games
 #Set this to where the modli data will be stored, such as mods
 root=~/git/modli/src
+#Set this to where the downloaded mods will be found
+DOWNLOADS=/mnt/games/mods
 
 #get the passed vars
+cmd=$1
 if [[ ! -z "$2" ]]; then
 	GAME_NAME="$2"
+	GAMEPATH="$GAMES/$GAME_NAME"
 fi
 
 if [[ ! -z "$3" ]]; then
 	MOD="$3"
 fi
 
-if [[ $1 = "--Manage" ]]; then
-	managed=false
-        . $root/Games/config 
-	exit
+. src/modlifunctions
 
-elif [[ $1 = "--Unmanage" ]]; then
-	managed=true
-	. $root/Games/config
+if [[ $cmd = "--Manage" || $cmd == "--Unmanage" ]]; then
+        addOrRemoveGame 
 	exit
 fi
 
-case "$GAME_NAME" in
-	"Fallout 4")
-		ENGINE="Fallout4.mm"
-		shift 2
-		;;
-	"Fallout 3")
-		ENGINE="Fallout3.mm"
-		shift 2
-		;;
-	"Fallout New Vegas")
-		ENGINE="FalloutNV.mm"
-		shift 2
-		;;
-esac
+if [[ $cmd == "-h" ]]; then
+	printHelp
+	exit
+fi
 
-. "$root/Games/$GAME_NAME/config"
+if [[ $cmd == "-c" ]]; then
+	checkNewGames
+	exit
+fi
 
+if [[ $cmd == "-C" ]]; then
+	checkGames
+	exit
+fi
+
+if [[ $cmd == "-m" ]]; then
+	checkAvailableMods
+	exit
+fi
+
+if [[ $cmd == "-M" ]]; then
+	checkInstalledMods
+	exit
+fi
 #Call the mod manager
-. $root/ModManagers/$ENGINE
-
+. $root/ModManagers/"$GAME_NAME.mm"
 
 
