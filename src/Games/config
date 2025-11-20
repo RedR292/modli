@@ -6,7 +6,7 @@ if [[ $cmd == "--Manage" ]]; then
 		for game in "$GAMES/"*; do
 			game="$(basename "$game")"
 			##TODO: Implement compatiable and incompatible games
-			if [[ ! -d "$src/Games/$game ]]; then
+			if [[ ! -d "$src/Games/$game" ]]; then
 				echo $game
 			fi
 		done
@@ -20,6 +20,7 @@ if [[ $cmd == "--Manage" ]]; then
 	echo "modli: Adding $GAME_NAME to management"
 	mkdir -p "$GAME_PATH/Mods" "$GAME_PATH/Scripts" "$GAME_PATH/stage"
 	echo "modli: $GAME_NAME was added to management"
+	echo "modli: To add a mod or script, use the command \"modli "
 
 ##Removing a game from management
 else

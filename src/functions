@@ -1,6 +1,6 @@
 ##Installs a mod to the modli system. 
 ##DOES NOT ADD MOD TO A STAGE FILE
-Installmod(){
+install(){
 	if [[ -z "$MOD" ]]; then
 		echo "Enter the mod's directory (filepath): "
 		read MOD
@@ -10,13 +10,17 @@ Installmod(){
 		return 1
 	fi
 	##User input to rename mod
-	echo "modli: Installing $mod to modli."
-	echo Rename the file and press enter. Raw mods must end in .7z and install scripts must end in .sh.
-	echo Leave this blank if you don't want to change the name.
+	echo "modli: Installing $(basename "$MOD") to modli."
+	echo "Rename the file and press enter. Raw mods must end in .7z and install scripts must end in .sh."
+	echo "Leave this blank if you don't want to change the name."
 	read mod
 	##User didn't rename the mod
 	if [[ -z "$mod" ]]; then
 		mod="$(basename "$MOD")"
+	fi
+	##Allows for implicit extension naming of MOD
+	if [[ "${mod##*.}" != 7z ]]; then
+		mod="$mod.7z"
 	fi
 
 	##Installing a mod
@@ -25,11 +29,25 @@ Installmod(){
 			echo "modli: $mod was already installed. Aborting install"
 			return 0
 		fi
-		##TODO: MAKE VALIDATE WORK. Build a checker for archive contents?
+		##Check if MOD can be installed directly or if it requires a script
+		checkTrivialMod			
+		if [ $? -eq 1 ]; then
+			return 1
+		fi
+
 		validatemod
-		if [[ $? -ne 0 ]]; then
-			echo "modli: ERR: $MOD IS NOT PROPERLY FORMATTED." >&2
-                        return 1	
+		status=$?
+		if [ $status -eq 1 ]; then
+			echo "modli: ERR: $(basename "$MOD") IS NOT A 7z ARCHIVE." >&2
+                        return 1
+
+		elif [ $status -eq 2 ]; then
+			echo "modli: ERR: $(basename "$MOD") HAS MORE THAN ONE ROOT DIRECTORY" >&2
+			return 1
+
+		elif [ $status -eq 3 ]; then
+                        echo "modli: ERR: $(basename "$MOD")'s ROOT DIRECTORY NOT NAMED 'Data'" >&2
+                        return 1
 		fi
 		
 		mv "$MOD" "$root/Games/$GAME_NAME/Mods/$mod"
@@ -50,7 +68,7 @@ Installmod(){
 			mv "$datadir"/* "$root/Games/$GAME_NAME/Scripts/${mod%.*}/"
 		fi
 	else
-		echo "modli: ERR: $(basename "$mod" .*) must end in .7z or .sh. Aborting installation" >&2
+		echo "modli: ERR: $(basename "$mod") must end in .7z or .sh. Aborting installation" >&2
 		return 1
 	fi
 	echo "modli: $mod was successfully installed"
@@ -60,7 +78,7 @@ Installmod(){
 ##Removes a mod from modli
 ##Could break a lot of stuff if not done right.
 ##TODO: Remove mods from games. Detect if the stage file is launched?
-Uninstallmod(){
+uninstall(){
 	ls -p "$root/Games/$GAME_NAME/Mods" | grep -v /
 	echo Enter the name of the mod you would like to remove: 
 	read mod
@@ -74,7 +92,7 @@ Uninstallmod(){
 }
 
 ##executes a custom install script
-Installscript(){
+installScript(){
 	. "$root/Games/$GAME_NAME/Scripts/$MOD"
 	if [[ $? -ne 0 ]]; then
 		echo "modli: ERR: $MOD was not executed properly" >&2
@@ -85,7 +103,7 @@ Installscript(){
 }
 
 ##Adds $MOD to $GAME_NAME stage file
-install(){
+addToStage(){
 	ls -p "$root/Games/$GAME_NAME/Mods" | grep -v /
 	echo "Enter the name of the mod you would like to add to $GAME's stage file"
 	read mod
@@ -108,7 +126,7 @@ install(){
 }
 
 ##Removes a mod from GAMEs stage file
-remove(){
+removeFromStage(){
 	ls -p "$root/Games/$GAME_NAME/stage" | grep -v / 
 	echo Enter the name of the mod you want to remove from the list: 
 	read mod

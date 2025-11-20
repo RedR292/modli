@@ -56,13 +56,7 @@ case "$cmd" in
         exit
         ;;
 
-    *)
-        echo "ERR: UNKNOWN COMMAND: $cmd" >2
-        exit 1
+    *) ##Everything else gets passed to the mod manager
+	. $root/ModManagers/"$GAME_NAME.mm"
         ;;
 esac
-
-#Call the mod manager
-. $root/ModManagers/"$GAME_NAME.mm"
-
-
