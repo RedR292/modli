@@ -1,7 +1,7 @@
-\helptext=\
+helptext=\
 "MOD manager for LInux, modli, handles mods for games in a simple and autonomous way that is developer friendly.
 
-Usage:
+Synopsis:
 modli OPTION [[GAME] [FILE]]
 OPTIONS
 =======================================================================================================================================================================
@@ -36,7 +36,7 @@ trim and reorganise mods, but are free to process mods however they prefer; an e
 fallout4text="Fallout 4 mods must have a single root folder named Data that contains the rest of the mod."
 
 if [[ -z "$GAME_NAME" ]]; then
-	echo "$helptext"
+	echo "$helptext" | less
 elif [[ "$GAME_NAME" = "Fallout 4" ]]; then
-	echo "$fallout4text"
+	echo "$fallout4text" | less
 fi

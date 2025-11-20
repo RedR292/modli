@@ -1,5 +1,3 @@
-. "$root/functions"
-
 validatemod(){
 	modcontents=$(7z l "$MOD" | grep -A 1000 "^----" | grep -B 1000 "^----" | grep -v "^----" | egrep "^([^/]*/?){1}$" | awk '{print $6}')
         for path in $modcontents; do

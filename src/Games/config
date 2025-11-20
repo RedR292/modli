@@ -3,32 +3,35 @@ if [[ $cmd == "--Manage" ]]; then
 	##if GAME_NAME was not passed
 	if [[ -z "$GAME_NAME" ]]; then
 		echo "select a game from the following list to add to management"
-		for g in "$GAMES/"*; do
-			if [[ ! -d "$src/Games/$(basename "$g")" ]]; then
-				echo $(basename "$g")
+		for game in "$GAMES/"*; do
+			game="$(basename "$game")"
+			##TODO: Implement compatiable and incompatible games
+			if [[ ! -d "$src/Games/$game ]]; then
+				echo $game
 			fi
 		done
 		read GAME_NAME
+		GAME_PATH="$root/Games/$GAME_NAME"
 	fi
-	if [[ -d "$root/Games/$GAME_NAME" ]]; then
-		echo "modli: $GAME_NAME is already managed. Aborting add"
+	if [[ -d "$GAME_PATH" ]]; then
+		echo "modli: $GAME_NAME is already being managed. Aborting add"
 		return 0
 	fi
 	echo "modli: Adding $GAME_NAME to management"
-	mkdir -p "$root/Games/$GAME_NAME/Mods" "$root/Games/$GAME_NAME/Scripts" "$root/Games/$GAME_NAME/stage"
+	mkdir -p "$GAME_PATH/Mods" "$GAME_PATH/Scripts" "$GAME_PATH/stage"
 	echo "modli: $GAME_NAME was added to management"
 
 ##Removing a game from management
 else
 	if [[ -z "$GAME_NAME" ]]; then
 		echo "Choose a game from the following list to remove."
-        	for g in "$root/Games"/*; do
-			echo $(basename "$g")
+        	for game in "$root/Games"/*; do
+			echo $(basename "$game")
 		done
         	read GAME_NAME
 	fi
         if [[ ! -d "$root/Games/$GAME_NAME" ]]; then
-		echo "modli: ERR: $GAME_NAME not found."
+		echo "modli: ERR: $GAME_NAME not found." >2
 		return 1
 	fi
 	echo "modli: removing $GAME_NAME from management"
