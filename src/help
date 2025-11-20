@@ -35,8 +35,8 @@ trim and reorganise mods, but are free to process mods however they prefer; an e
 
 fallout4text="Fallout 4 mods must have a single root folder named Data that contains the rest of the mod."
 
-if [[ -z $GAME_ID ]]; then
+if [[ -z "$GAME_NAME" ]]; then
 	echo "$helptext"
-elif [[ $GAME_ID = $Fallout4 ]]; then
+elif [[ "$GAME_NAME" = "Fallout 4" ]]; then
 	echo "$fallout4text"
 fi

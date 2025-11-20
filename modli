@@ -1,64 +1,67 @@
 #!/bin/bash
 ## Prototype of modli cli and mod manager.
 ## Written by John "Red" Richardson
-## 13/03/2025
+## 15/11/2025
 ##################USAGE##################
 ##modli [OPTIONS] [GAME] [FILE]	
+. .env
+. $root/functions
+if [[ "$#" -eq 0 ]]; then
+	. $root/help
+	exit 1	
+fi
 
-##TODO:
-#FIX
-#THE #!@#ING
-#IF STATEMENTS
-
-#Set this to where you keep your games, such as your steam library.
-GAMES=~/Games
-#Set this to where the modli data will be stored, such as mods
-root=~/git/modli/src
-#Set this to where the downloaded mods will be found
-DOWNLOADS=/mnt/games/mods
-
-#get the passed vars
+##The passed command
 cmd=$1
+#The name of the game being modded and the path where your games are stored.
 if [[ ! -z "$2" ]]; then
 	GAME_NAME="$2"
 	GAMEPATH="$GAMES/$GAME_NAME"
 fi
 
+#The mod or script, if one was passed
 if [[ ! -z "$3" ]]; then
 	MOD="$3"
 fi
 
-. src/modlifunctions
+#These are utility functions, they improve modli's usability and readability
+case "$cmd" in
+    --Manage|--Unmanage)
+        . "$root/Games/config" "$cmd"
+        exit
+        ;;
 
-if [[ $cmd = "--Manage" || $cmd == "--Unmanage" ]]; then
-        addOrRemoveGame 
-	exit
-fi
+    -h)
+        . $root/help "$GAME_NAME"
+        exit
+        ;;
 
-if [[ $cmd == "-h" ]]; then
-	printHelp
-	exit
-fi
+    -c)
+        checkNewGames
+        exit
+        ;;
 
-if [[ $cmd == "-c" ]]; then
-	checkNewGames
-	exit
-fi
+    -C)
+        checkGames
+        exit
+        ;;
 
-if [[ $cmd == "-C" ]]; then
-	checkGames
-	exit
-fi
+    -m)
+        checkAvailableMods
+        exit
+        ;;
 
-if [[ $cmd == "-m" ]]; then
-	checkAvailableMods
-	exit
-fi
+    -M)
+        checkInstalledMods
+        exit
+        ;;
 
-if [[ $cmd == "-M" ]]; then
-	checkInstalledMods
-	exit
-fi
+    *)
+        echo "ERR: UNKNOWN COMMAND: $cmd" >2
+        exit 1
+        ;;
+esac
+
 #Call the mod manager
 . $root/ModManagers/"$GAME_NAME.mm"
 

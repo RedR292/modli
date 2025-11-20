@@ -15,7 +15,7 @@ if [[ $cmd == "--Manage" ]]; then
 		return 0
 	fi
 	echo "modli: Adding $GAME_NAME to management"
-	mkdir -p "$root/Games/$GAME_NAME/Mods" "$root/Games/$GAME_NAME/Scripts/data" "$root/Games/$GAME_NAME/stage"
+	mkdir -p "$root/Games/$GAME_NAME/Mods" "$root/Games/$GAME_NAME/Scripts" "$root/Games/$GAME_NAME/stage"
 	echo "modli: $GAME_NAME was added to management"
 
 ##Removing a game from management
