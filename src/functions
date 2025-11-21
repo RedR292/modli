@@ -1,6 +1,6 @@
 ##Installs a mod to the modli system. 
 ##DOES NOT ADD MOD TO A STAGE FILE
-install(){
+install() {
 	if [[ -z "$MOD" ]]; then
 		echo "Enter the mod's directory (filepath): "
 		read MOD
@@ -18,10 +18,6 @@ install(){
 	if [[ -z "$mod" ]]; then
 		mod="$(basename "$MOD")"
 	fi
-	##Allows for implicit extension naming of MOD
-	if [[ "${mod##*.}" != 7z ]]; then
-		mod="$mod.7z"
-	fi
 
 	##Installing a mod
 	if [[ "$mod" == *.7z ]]; then
@@ -29,12 +25,12 @@ install(){
 			echo "modli: $mod was already installed. Aborting install"
 			return 0
 		fi
-		##Check if MOD can be installed directly or if it requires a script
+		##Check if MOD can be installed directly
 		checkTrivialMod			
 		if [ $? -eq 1 ]; then
 			return 1
 		fi
-
+		##Check if mod is allowed (see: `modli -h "<GAME_NAME>"` for more info)
 		validatemod
 		status=$?
 		if [ $status -eq 1 ]; then
@@ -50,38 +46,42 @@ install(){
                         return 1
 		fi
 		
-		mv "$MOD" "$root/Games/$GAME_NAME/Mods/$mod"
-
+		cp "$MOD" "$root/Games/$GAME_NAME/Mods/$mod"
+		echo "modli: $mod has been installed to $root/Games/$GAME_NAME"
 	##Installing a script
 	elif [[ "$mod" == *.sh ]]; then
-		if [[ -d "$root/Games/$GAME_NAME/Scripts/${mod%.*}" ]]; then
+		if [[ -f "$root/Scripts/$GAME_NAME/${mod%.*}/$mod" ]]; then
 			echo "modli: $mod already exists. Aborting installation"
 			return 0
 		fi
-		mkdir "$root/Games/$GAME_NAME/Scripts/${mod%.*}"
-		mv "$MOD" "$root/Games/$GAME_NAME/Scripts/${mod%.*}/"
+		mkdir -p "$root/Scripts/$GAME_NAME/${mod%.*}/Data"
+		mv "$MOD" "$root/Scripts/$GAME_NAME/${mod%.*}/$mod"
 		echo Enter the directory of the mod and/or data to go with the script. If no data is needed, press enter to skip.
 		echo WARNING: scripts are not validated by modli. Best practices are recommended when writing your own scripts
 		echo Proceeding means the user understands the risks of a poorly written script, such as corrupted, missing and/or unchecked data. 
 		read datadir
 		if [[ ! -z "$datadir" ]]; then
-			mv "$datadir"/* "$root/Games/$GAME_NAME/Scripts/${mod%.*}/"
+			mv "$datadir"/* "$root/Scripts/$GAME_NAME/${mod%.*}/Data/"
 		fi
+		echo "modli: $mod was added to $root/Scripts/$GAME_NAME/${mod%.*}/Data"
 	else
 		echo "modli: ERR: $(basename "$mod") must end in .7z or .sh. Aborting installation" >&2
 		return 1
 	fi
-	echo "modli: $mod was successfully installed"
+	echo "modli: $MOD was installed"
 	return 0
 }
 
 ##Removes a mod from modli
 ##Could break a lot of stuff if not done right.
 ##TODO: Remove mods from games. Detect if the stage file is launched?
-uninstall(){
-	ls -p "$root/Games/$GAME_NAME/Mods" | grep -v /
-	echo Enter the name of the mod you would like to remove: 
-	read mod
+uninstall() {
+	mod="$MOD"
+	if [ -z "$mod" ]; then
+		ls -p "$root/Games/$GAME_NAME/Mods" | grep -v /
+		echo Enter the name of the mod you would like to remove: 
+		read mod
+	fi
 	if [[ ! -f "$root/Games/$GAME_NAME/Mods/$mod" ]]; then
 		echo modli: ERR: $mod not found >&2
 		return 1
@@ -92,8 +92,8 @@ uninstall(){
 }
 
 ##executes a custom install script
-installScript(){
-	. "$root/Games/$GAME_NAME/Scripts/$MOD"
+runScript() {
+	. "$root/Scripts/$GAME_NAME/${MOD%.*}/$MOD"
 	if [[ $? -ne 0 ]]; then
 		echo "modli: ERR: $MOD was not executed properly" >&2
 		return 1
@@ -103,9 +103,9 @@ installScript(){
 }
 
 ##Adds $MOD to $GAME_NAME stage file
-addToStage(){
+addToStage() {
 	ls -p "$root/Games/$GAME_NAME/Mods" | grep -v /
-	echo "Enter the name of the mod you would like to add to $GAME's stage file"
+	echo "Enter the name of the mod you would like to add to $GAME_NAME's stage file"
 	read mod
 
 	##If mod was not found
@@ -126,7 +126,7 @@ addToStage(){
 }
 
 ##Removes a mod from GAMEs stage file
-removeFromStage(){
+removeFromStage() {
 	ls -p "$root/Games/$GAME_NAME/stage" | grep -v / 
 	echo Enter the name of the mod you want to remove from the list: 
 	read mod
@@ -141,22 +141,25 @@ removeFromStage(){
 
 ##launches stage file to GAME
 ##This performs the BARE MINIMUM and needs to be implemented into each mod manager
-Launch(){
+Launch() {
+	if [[ $(ls "$root/Games/$GAME_NAME/stage" | wc -w ) -eq 0 ]]; then
+		echo "modli: ERR: $GAME_NAME's STAGE FILE IS EMPTY." >&2
+		return 1
+	fi
 	echo "Preparing to implement stage file to $GAME_NAME"
-	mkdir "$root/tmp"
+	mkdir -p "$root/tmp"
 	for file in "$root/Games/$GAME_NAME/stage"/*; do	
 		7z x "$file" -o"$root/tmp/"
 		cp -r "$root/tmp/Data" "$GAMEPATH/"
-		rm -dR "$GAMEPATH/tmp/Data"
 		echo "modli: installed $(basename "$file") to $GAME_NAME"
 	done
-	rm -dR "$root/tmp"
+	rm -rf "$root/tmp"
 	echo "modli: Stage file has been launched to $GAME_NAME"
 	return 0
 }
 
 ##Checks all available mods for GAME
-checkAvailableMods(){
+checkAvailableMods() {
 	echo "Mods available to be installed to $GAME_NAME:"
 	for mod in "$root/Games/$GAME_NAME/Mods"/*; do
 		mod="$(basename "$mod")"
@@ -168,7 +171,7 @@ checkAvailableMods(){
 }
 
 ##Checks all currently installed mods for GAME
-checkInstalledMods(){
+checkInstalledMods() {
 	echo "Mods currently installed to $GAME_NAME:" 
 	for mod in "$root/Games/$GAME_NAME/stage"/*; do
 		echo "$(basename "$mod")"

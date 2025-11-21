@@ -27,7 +27,7 @@ fi
 #These are utility functions, they improve modli's usability and readability
 case "$cmd" in
     --Manage|--Unmanage)
-        . "$root/Games/config" "$cmd"
+        . "$root/Games/config" "$cmd" "$GAME_NAME"
         exit
         ;;
 

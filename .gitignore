@@ -2,3 +2,6 @@
 .key
 tools
 test
+src/Games/*
+!src/Games/*
+src/Scripts/*

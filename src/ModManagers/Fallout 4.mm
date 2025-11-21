@@ -7,7 +7,7 @@ checkTrivialMod() {
 		return 1
 	fi
 	##Check if MOD is a script extender
-	7z l "$MOD" | grep -q dll
+	7z l "$MOD" | grep -q 'f4se_loader.exe'
 	if [ $? -eq 0 ]; then
 		echo "modli: WARNING: this is a script extender and cannot be installed as a raw mod It must be installed with a custom script"
 		return 1
@@ -24,16 +24,16 @@ validatemod() {
 		return 1
 	fi
 	##Checks that root Data has no siblings
-	if [ $(echo "$contents" | grep -Ec "^[^/]+/[^/]+$") -gt 1 ]; then
+	if [ $(echo "$contents" | grep -vc '/') -gt 1 ]; then
 		return 2
 	fi
 	##Checks that root file is named Data
-	if [[ ! "$(echo "$contents" | sed -n 2p)" =~ "^[^/]+/Data$" ]]; then
+	if [[ ! "$(echo "$contents" | sed -n 1p)" == "Data" ]]; then
 		return 3
 	fi
 	
         #mod is valid
-	return 1
+	return 0
 }
 
 #process the options
@@ -44,7 +44,7 @@ case $cmd in
 			echo "modli: ERR: $mod was not installed." >&2
 			return 1
 		else
-			echo "modli: mod was successfully installed to $GAME"
+			echo "modli: $mod was installed to $GAME_NAME"
 		fi
 		shift 2
 		;;
@@ -54,12 +54,12 @@ case $cmd in
 			echo "modli: ERR: mod was not removed" >&2
 			return 1
 		else
-			echo "modli: $mod was successfully removed from $GAME"
+			echo "modli: $mod was removed from $GAME_NAME"
 		fi
 		shift 2
 		;;
-	--installScript)
-		installScript
+	-rs)
+		runScript
 		if [[ $? -ne 0 ]]; then
 			echo "modli: ERR: mod not installed properly"
 		fi

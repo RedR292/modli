@@ -1,5 +1,6 @@
 ##Adding a game to management
 if [[ $cmd == "--Manage" ]]; then
+	GAME_NAME="$2"
 	##if GAME_NAME was not passed
 	if [[ -z "$GAME_NAME" ]]; then
 		echo "select a game from the following list to add to management"
@@ -11,23 +12,24 @@ if [[ $cmd == "--Manage" ]]; then
 			fi
 		done
 		read GAME_NAME
-		GAME_PATH="$root/Games/$GAME_NAME"
 	fi
+	GAME_PATH="$root/Games/$GAME_NAME"
 	if [[ -d "$GAME_PATH" ]]; then
 		echo "modli: $GAME_NAME is already being managed. Aborting add"
 		return 0
 	fi
 	echo "modli: Adding $GAME_NAME to management"
-	mkdir -p "$GAME_PATH/Mods" "$GAME_PATH/Scripts" "$GAME_PATH/stage"
+	mkdir -p "$GAME_PATH/Mods" "$GAME_PATH/stage" "$root/Scripts/$GAME_NAME/"
 	echo "modli: $GAME_NAME was added to management"
 	echo "modli: To add a mod or script, use the command \"modli "
 
 ##Removing a game from management
 else
+##TODO: remove all stages
 	if [[ -z "$GAME_NAME" ]]; then
 		echo "Choose a game from the following list to remove."
-        	for game in "$root/Games"/*; do
-			echo $(basename "$game")
+        	for game in "$(ls -p "$root/Games" | grep /)"; do
+			echo "$(basename "$game")"
 		done
         	read GAME_NAME
 	fi
@@ -37,6 +39,6 @@ else
 	fi
 	echo "modli: removing $GAME_NAME from management"
 	##get the GAMEPATH var
-	rm -dR "$root/Games/$GAME_NAME"
+	rm -rf "$root/Games/$GAME_NAME"
 	echo "modli: $GAME_NAME was successfully removed from management"
 fi
