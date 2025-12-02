@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="sidenav">
+    <button class="dropdown-btn">Introduction
+      <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-container">
+      <a href="#">About modli</a>
+      <a href="#">Course overview & Learning outcomes</a>
+      <a href="#">Creating a linux environment</a>
+    </div>
+    <button class="dropdown-btn">Installing modli
+      <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-container">
+      <a href="#">Installing from the git repo</a>
+      <a href="#">Installing from a docker container</a>
+      <a href="#">Configuring modli</a>
+      <a href="#">Adding a new user</a>
+      <a href="#">Adding your first game to modli</a>
+    </div>
+    <button class="dropdown-btn">Mod & script management
+      <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-container">
+      <a href="#">Installing your first mod</a>
+      <a href="#">Staging your first mod</a>
+      <a href="#">Writing your first script</a>
+      <a href="#">Executing your first script</a>
+      <a href="#">Adding your first game to modli</a>
+    </div>
+    <button class="dropdown-btn">Adding new features
+      <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-container">
+      <a href="#">A load order tool</a>
+      <a href="#">Managing dependencies</a>
+      <a href="#">Compiling an executable with make</a>
+    </div>
+  </div>
+
+  <script>
+/* Loop through all dropdown buttons to toggle between hiding and showing its dropdown content - This allows the user to have multiple dropdowns without any conflict */
+var dropdown = document.getElementsByClassName("dropdown-btn");
+var i;
+
+for (i = 0; i < dropdown.length; i++) {
+  dropdown[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var dropdownContent = this.nextElementSibling;
+    if (dropdownContent.style.display === "block") {
+      dropdownContent.style.display = "none";
+    } else {
+      dropdownContent.style.display = "block";
+    }
+  });
+}
+</script>
+
+</body>
+</html>
