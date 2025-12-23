@@ -3,5 +3,5 @@
 tools
 test
 src/Games/*
-!src/Games/*
+src/Mods/*
 src/Scripts/*

@@ -3,42 +3,44 @@ if [[ $cmd == "--Manage" ]]; then
 	GAME_NAME="$2"
 	##if GAME_NAME was not passed
 	if [[ -z "$GAME_NAME" ]]; then
-		echo "select a game from the following list to add to management"
+		echo -n "Select a game to manage: "
 		for game in "$GAMES/"*; do
 			game="$(basename "$game")"
 			##TODO: Implement compatiable and incompatible games
-			if [[ ! -d "$src/Games/$game" ]]; then
-				echo $game
-			fi
 		done
 		read GAME_NAME
+		GAME_PATH="$root/Games/$GAME_NAME"
 	fi
-	GAME_PATH="$root/Games/$GAME_NAME"
 	if [[ -d "$GAME_PATH" ]]; then
 		echo "modli: $GAME_NAME is already being managed. Aborting add"
 		return 0
 	fi
 	echo "modli: Adding $GAME_NAME to management"
-	mkdir -p "$GAME_PATH/Mods" "$GAME_PATH/stage" "$root/Scripts/$GAME_NAME/"
+	mkdir "$GAME_PATH"
+	mkdir -p "$root/Mods/$GAME_NAME" "$root/Scripts/$GAME_NAME"
+	ln -s "$root/Mods/$GAME_NAME" "$GAME_PATH/Mods"
+	ln -s "$root/Scripts/$GAME_NAME" "$GAME_PATH/Scripts"
+	echo "empty" > "$GAME_PATH/stage.status"
 	echo "modli: $GAME_NAME was added to management"
-	echo "modli: To add a mod or script, use the command \"modli "
 
 ##Removing a game from management
 else
-##TODO: remove all stages
+	##TODO: remove all stages
 	if [[ -z "$GAME_NAME" ]]; then
-		echo "Choose a game from the following list to remove."
-        	for game in "$(ls -p "$root/Games" | grep /)"; do
+		echo -n "Select a game to remove: "
+		##TODO: Implement filtering results from $GAMES with another grep command in the pipeline
+		for game in "$(ls -p "$root/Games" | grep /)"; do
 			echo "$(basename "$game")"
 		done
-        	read GAME_NAME
+    read GAME_NAME
+		GAME_PATH="$root/Games/$GAME_NAME"
 	fi
-        if [[ ! -d "$root/Games/$GAME_NAME" ]]; then
-		echo "modli: ERR: $GAME_NAME not found." >2
+	if [[ ! -d "$GAME_PATH" ]]; then
+		echo "modli: ERR: $GAME_PATH not found." >&2
 		return 1
 	fi
+
 	echo "modli: removing $GAME_NAME from management"
-	##get the GAMEPATH var
-	rm -rf "$root/Games/$GAME_NAME"
-	echo "modli: $GAME_NAME was successfully removed from management"
+	rm -rf "$GAME_PATH"
+	echo "modli: $GAME_PATH was successfully removed from management"
 fi

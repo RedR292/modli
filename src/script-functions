@@ -1,8 +1,12 @@
+#!/bin/bash
+
 ##These functions are to be used as helper functions for users to make their own custom scripts.
 
-##Installs a file to a GAMEPATH subdirectory 
+##Installs a file to a GAMEPATH subdirectory
 ##if no destination subdirectory is passed, install to GAMEPATH folder
 install(){
+	local src
+	local dest
 	src="$root/tmp/$1"
 	dest="$GAMEPATH"
 	if [[ ! -z "$2" ]]; then
@@ -15,11 +19,13 @@ install(){
 ##Input: 7z in data folder, destination. If no destination provided, extract to $root/tmp/
 ##Output: root extracted path in destination
 extract(){
+	local src
+	local dest
 	mkdir -p "$root/tmp"
 	dest="$2"
 	if [[ -z "$dest" ]]; then
 		dest="$root/tmp/"
-	
+
 	fi
 	src="$root/Scripts/$GAME_NAME/${MOD%.*}/Data/$1"
 	7z x "$src" -o"$dest"

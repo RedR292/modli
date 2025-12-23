@@ -1,23 +1,24 @@
 #!/bin/bash
 ## Prototype of modli cli and mod manager.
 ## Written by John "Red" Richardson
-## 15/11/2025
+## 15/12/2025
 ##################USAGE##################
-##modli [OPTIONS] [GAME] [FILE]	
+##modli [OPTIONS] [GAME] [FILE]
 . .env
-. $root/functions
+GAME_PATH=
 if [[ "$#" -eq 0 ]]; then
 	. $root/help
-	exit 1	
+	exit 1
 fi
-
 ##The passed command
 cmd=$1
 #The name of the game being modded and the path where your games are stored.
 if [[ ! -z "$2" ]]; then
 	GAME_NAME="$2"
-	GAMEPATH="$GAMES/$GAME_NAME"
+	GAMEPATH="$GAMES/$GAME_NAME" #Path to game in game directory
+	GAME_PATH="$root/Games/$GAME_NAME" #Path to game files in modli project
 fi
+. $root/functions
 
 #The mod or script, if one was passed
 if [[ ! -z "$3" ]]; then
