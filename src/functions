@@ -128,22 +128,22 @@ addToStage() {
 
 	##Create a stage if it does not already exist
 	if [[ ! -f "$GAME_PATH/stage.tar" ]]; then
-			cd "$GAME_PATH/Mods/" > /dev/null
-			tar cf "$GAME_PATH/stage.tar" "$mod"
-			cd - > /dev/null
-	fi
+		cd "$GAME_PATH/Mods/" > /dev/null
+		tar cf "$GAME_PATH/stage.tar" "$mod"
+		cd - > /dev/null
 
 	##If mod already exists in stage
-	if [ "$(tar tf "$GAME_PATH/stage.tar" | grep "$mod")" ]; then
+	elif [ "$(tar tf "$GAME_PATH/stage.tar" | grep "$mod")" ]; then
 		echo "modli: $mod is already in $GAME_NAME's stage"
 		return 0
-	fi
 	#Archives the mod into the stage
-	cd "$GAME_PATH/Mods/" > /dev/null
-	tar rvf "../stage.tar" "$mod"
-	cd - > /dev/null
-	echo "ready" > "$GAME_PATH/stage.status"
-	echo "modli: $mod was added to $GAME_NAME's stage"
+	else
+		cd "$GAME_PATH/Mods/" > /dev/null
+		tar rvf "../stage.tar" "$mod"
+		cd - > /dev/null
+		echo "ready" > "$GAME_PATH/stage.status"
+		echo "modli: $mod was added to $GAME_NAME's stage"
+	fi
 	return 0
 }
 
